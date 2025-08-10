@@ -1,0 +1,90 @@
+{
+    "products":{
+        "BoundaryLine": {
+            "name": "Boundary line",
+            "script": "boundaryline/",
+            "formats": [
+                "ESRI® Shapefile"
+            ],
+            "targets": [
+                {
+                    "folder":"boundaries",
+                    "datasets": [
+                        {
+                            "targets":["Teignbridge.json"],
+                            "script":"teignbridge.sh",
+                            "source":"Data/GB/district_borough_unitary_region.shp"
+                        },
+                        {
+                            "targets":["Devon.json"],
+                            "script":"devon.sh",
+                            "source":"Data/GB/county_region.shp"
+                        },
+                        {
+                            "targets":["DevonConstituencies.json"],
+                            "script":"devonconstituencies.sh",
+                            "source":"Data/GB/westminster_const_region.shp"
+                        },
+                        {
+                            "targets":["DevonWards.json"],
+                            "script":"devonward.sh",
+                            "source":"Data/GB/county_electoral_division_region.shp"
+                        },
+                        {
+                            "targets":["TeignbridgeParishes.json"],
+                            "script":"parishes.sh",
+                            "source":"Data/GB/parish_region.shp"
+                        },
+                        {
+                            "targets":["TeignbridgeWards.json"],
+                            "script":"teignbridgewards.sh",
+                            "source":"Data/GB/district_borough_unitary_ward_region.shp"
+                        }
+                    ]
+                }
+            ]
+        },
+        "CodePointOpen": {
+            "name": "Code Point Open",
+            "version_date": "2025",
+            "script": "codepoint/",
+            "formats": [
+                "CSV"
+            ]
+        },
+        "OpenMapLocal": {
+            "name": "OS Open Map Local",
+            "version_date": "",
+            "script": "openmaplocal/",
+            "areas": [
+                "SX"
+            ],
+            "formats": [
+                "ESRI® Shapefile"
+            ],
+            "clip":"/boundaries/Teignbridge.json",
+            "targets": [
+                {
+                    "folder":"buildings",
+                    "datasets":[
+                        {
+                            "targets":["building.json"],
+                            "script":"building.sh",
+                            "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Building.shp"
+                        }
+                    ]
+                },
+                {
+                    "folder":"natural_environment",
+                    "datasets":[
+                        {
+                            "targets":["woodland.json"],
+                            "script":"woodland.sh",
+                            "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Woodland.shp"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
