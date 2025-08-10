@@ -1,7 +1,5 @@
 {
   "dependencies": {
-    "path": "^0.12.7",
-    "unzip": "^0.1.11",
     "yauzl": "^3.2.0"
   }
 }

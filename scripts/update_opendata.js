@@ -170,17 +170,17 @@ async function gettargetstatus(current, product){
     let unprocessed_targets = [];
     if ( current.targets){
         for(let target of current.targets){
-            // check folder exists
+            // directory exists
             let hastarget = true;
-            let testdir = processed_dir + target.folder;
-            console.log('Checking target folder: ' + testdir);
+            let testdir = processed_dir + target.directory
+            console.log('Checking target directory: ' + testdir);
             await fs.promises.access(testdir, fs.constants.R_OK).catch(async(err) => {
                 console.log('Creating ' + testdir);
                 await fs.promises.mkdir(testdir);
                 hastarget = false;
             });
             let work_target = {
-                folder: testdir,
+                directory: testdir,
                 datasets:[]
             };
             // check version number
@@ -326,7 +326,7 @@ async function run(){
                                     console.log('Executing ' + scriptpath);
                                     let environment = {
                                         SOURCE: unzipped + '/' + dataset.source,
-                                        TARGET_DIR: target.folder + '/'
+                                        TARGET_DIR: target.directory + '/'
                                     };
                                     if ( clip ){
                                         environment['CLIPSRC'] = processed_dir + '/' + clip;

@@ -16,21 +16,6 @@
                             "source":"Data/GB/district_borough_unitary_region.shp"
                         },
                         {
-                            "targets":["Devon.json"],
-                            "script":"devon.sh",
-                            "source":"Data/GB/county_region.shp"
-                        },
-                        {
-                            "targets":["DevonConstituencies.json"],
-                            "script":"devonconstituencies.sh",
-                            "source":"Data/GB/westminster_const_region.shp"
-                        },
-                        {
-                            "targets":["DevonWards.json"],
-                            "script":"devonward.sh",
-                            "source":"Data/GB/county_electoral_division_region.shp"
-                        },
-                        {
                             "targets":["TeignbridgeParishes.json"],
                             "script":"parishes.sh",
                             "source":"Data/GB/parish_region.shp"
@@ -42,14 +27,6 @@
                         }
                     ]
                 }
-            ]
-        },
-        "CodePointOpen": {
-            "name": "Code Point Open",
-            "version_date": "2025",
-            "script": "codepoint/",
-            "formats": [
-                "CSV"
             ]
         },
         "OpenMapLocal": {
