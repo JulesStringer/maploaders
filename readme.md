@@ -23,15 +23,22 @@ Familiarity with the command line is required.
 1. ### GDAL/OGR
     `ogr2ogr` is used for all data processing. The `gdal-bin` package is required.
 
-    **On Ubuntu / Raspbian**: The default GDAL packages are often outdated. We recommend using the `ubuntugis` PPA for a more recent version.
+    **On Ubuntu **: The default GDAL packages are often outdated. We recommend using the `ubuntugis` PPA for a more recent version.
 
     ```bash
     sudo add-apt-repository ppa:ubuntugis/ppa
     sudo apt-get update
     sudo apt-get install gdal-bin
     ogrinfo --version
-
+```
     This last step verifies installation.
+
+    **On Raspbian **
+```bash
+    sudo apt update
+    sudo apt upgrade
+    sudo apt install libgdal-dev
+```
 2. ### Node.js
     The project's main logic is a Node.js application. It was developed and tested with version 24.0.1.
 
@@ -115,8 +122,8 @@ This object's key is the id of an OS product listed in the [products list](https
                     "datasets": [
                         {
                             "targets":["Teignbridge.json"],
-                            "script":"teignbridge.sh",
-                            "source":"Data/GB/district_borough_unitary_region.shp"
+                            "source":"Data/GB/district_borough_unitary_region.shp",
+                            "where":""
                         },
                         {
                             "targets":["TeignbridgeWards.json"],

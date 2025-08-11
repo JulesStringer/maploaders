@@ -2,7 +2,6 @@
     "products":{
         "BoundaryLine": {
             "name": "Boundary line",
-            "script": "boundaryline/",
             "formats": [
                 "ESRI® Shapefile"
             ],
@@ -12,33 +11,33 @@
                     "datasets": [
                         {
                             "targets":["Teignbridge.json"],
-                            "script":"teignbridge.sh",
-                            "source":"Data/GB/district_borough_unitary_region.shp"
+                            "source":"Data/GB/district_borough_unitary_region.shp",
+                            "where":"CODE IN ('E07000045')"
                         },
                         {
                             "targets":["Devon.json"],
-                            "script":"devon.sh",
-                            "source":"Data/GB/county_region.shp"
+                            "source":"Data/GB/county_region.shp",
+                            "where":"CODE IN ('E10000008')"
                         },
                         {
                             "targets":["DevonConstituencies.json"],
-                            "script":"devonconstituencies.sh",
-                            "source":"Data/GB/westminster_const_region.shp"
+                            "source":"Data/GB/westminster_const_region.shp",
+                            "where":"CODE IN('E14001381','E14001155')"
                         },
                         {
                             "targets":["DevonWards.json"],
-                            "script":"devonward.sh",
-                            "source":"Data/GB/county_electoral_division_region.shp"
+                            "source":"Data/GB/county_electoral_division_region.shp",
+                            "where":"FILE_NAME='DEVON_COUNTY'"
                         },
                         {
                             "targets":["TeignbridgeParishes.json"],
-                            "script":"parishes.sh",
-                            "source":"Data/GB/parish_region.shp"
+                            "source":"Data/GB/parish_region.shp",
+                            "where":"FILE_NAME = 'DEVON_COUNTY' AND CODE IN ('E04003192','E04003193','E04012121','E04003191','E04003194','E04003195','E04003196','E04003197','E04003198','E04003199','E04003200','E04003201','E04003202','E04003203','E04003204','E04003235','E04003205','E04003206','E04003207','E04003208','E04003209','E04003210','E04003211','E04003212','E04003213','E04003214','E04003215','E04003216','E04003217','E04003218','E04003219','E04003220','E04003221','E04003222','E04003223','E04003232','E04003225','E04003226','E04003227','E04003228','E04003229','E04003230','E04003231','E04003233','E04003234','E04003236','E04003237','E04003238','E04003239','E04012122')"
                         },
                         {
                             "targets":["TeignbridgeWards.json"],
-                            "script":"teignbridgewards.sh",
-                            "source":"Data/GB/district_borough_unitary_ward_region.shp"
+                            "sources":["Data/GB/district_borough_unitary_ward_region.shp"],
+                            "where":"CODE IN ('E05011905','E05011912','E05011910','E05011895','E05011899','E05011909','E05011908','E05011906','E05011901','E05011902','E05011914','E05011913','E05011915','E05011915','E05011896','E05011898','E05011897','E05011900','E05011892','E05011893','E05011904','E05011903','E05011907','E05011911')"
                         }
                     ]
                 }
@@ -46,16 +45,26 @@
         },
         "CodePointOpen": {
             "name": "Code Point Open",
-            "version_date": "2025",
-            "script": "codepoint/",
             "formats": [
                 "CSV"
+            ],
+            "script":"postcodes/",
+            "targets": [
+                {
+                    "directory":"postcodes",
+                    "datasets":[
+                        {
+                            "targets":["EX1.json"],
+                            "source":"Data/CSV/",
+                            "sources":["ex.csv","pl.csv","tq.csv"],
+                            "script":"postcode.sh"
+                        }
+                    ]
+                }
             ]
         },
         "OpenMapLocal": {
             "name": "OS Open Map Local",
-            "version_date": "",
-            "script": "openmaplocal/",
             "areas": [
                 "SX"
             ],
@@ -69,7 +78,6 @@
                     "datasets":[
                         {
                             "targets":["building.json"],
-                            "script":"building.sh",
                             "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Building.shp"
                         }
                     ]
@@ -79,7 +87,6 @@
                     "datasets":[
                         {
                             "targets":["woodland.json"],
-                            "script":"woodland.sh",
                             "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Woodland.shp"
                         }
                     ]

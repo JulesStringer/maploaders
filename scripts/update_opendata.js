@@ -115,6 +115,39 @@ async function executeScript(scriptPath, environment) {
         });
     });
 }
+async function executeogr(environment) {
+    return new Promise((resolve, reject) => {
+        let cmd = `ogr2ogr -f GeoJSON "${environment.TARGET}" "${environment.SOURCE}"`;
+        if ( environment.WHERE ){
+            cmd += ` -where "${environment.WHERE}"`;
+        }
+        if ( environment.CLIPSRC ){
+            cmd += ` -clipsrc "${environment.CLIPSRC}"`;
+        }
+        console.log('Executing: ' + cmd);
+        const child = exec(cmd, { env: process.env });
+
+        child.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
+
+        child.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`);
+        });
+
+        child.on('close', (code) => {
+            if (code === 0) {
+                resolve(`Child process exited with code ${code}`);
+            } else {
+                reject(new Error(`Child process exited with code ${code}`));
+            }
+        });
+
+        child.on('error', (error) => {
+            reject(error);
+        });
+    });
+}
 async function unzipFile(zippedFilePath, destinationPath) {
     await fs.promises.rm(destinationPath, { recursive: true, force: true });
     // Ensure the destination directory exists
@@ -207,6 +240,11 @@ async function gettargetstatus(current, product){
                     targets:[],
                     script: dataset.script,
                     source: dataset.source
+                }
+                for(let key in dataset){
+                    if ( key != 'targets' ){
+                        ds[key] = dataset[key];
+                    }
                 }
                 console.log('Product version: ' + product.version);
                 for(let file of dataset.targets){
@@ -322,17 +360,33 @@ async function run(){
                                     if ( dataset.clip ){
                                         clip = dataset.clip
                                     }
-                                    let scriptpath = __dirname + '/' + current.script + dataset.script;
-                                    console.log('Executing ' + scriptpath);
                                     let environment = {
                                         SOURCE: unzipped + '/' + dataset.source,
                                         TARGET_DIR: target.directory + '/'
                                     };
+                                    if ( dataset.sources){
+                                        // this must be done by script
+                                        environment['SOURCES'] = dataset.sources;
+                                    }   
                                     if ( clip ){
                                         environment['CLIPSRC'] = processed_dir + '/' + clip;
                                     }
-                                    await executeScript(scriptpath, environment);
-                                    console.log('Executed ' + scriptpath);
+                                    if ( dataset.where ){
+                                        environment['WHERE'] = dataset.where;
+                                    }
+                                    if ( dataset.targets.length == 1 ){
+                                        environment['TARGET'] = dataset.targets[0];
+                                    } else {
+                                        environment['TARGETS'] = dataset.targets;
+                                    }
+                                    if ( dataset.script ){
+                                        let scriptpath = __dirname + '/' + current.script + dataset.script;
+                                        console.log('Executing ' + scriptpath);
+                                        await executeScript(scriptpath, environment);
+                                        console.log('Executed ' + scriptpath);
+                                    } else {
+                                        await executeogr(environment)
+                                    }
                                     // Report file sizes
                                     for(let j = 0; j < dataset.targets.length; j++){
                                         let filesize = await getfilesize( dataset.targets[j]);
