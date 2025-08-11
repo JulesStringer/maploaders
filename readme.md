@@ -119,6 +119,12 @@ This object's key is the id of an OS product listed in the [products list](https
                             "source":"Data/GB/district_borough_unitary_region.shp"
                         },
                         {
+                            "targets":["TeignbridgeWards.json"],
+                            "script":"teignbidgewards.sh",
+                            "sourcr":"Data/GB/district_borough_unitary_electoral_division_region.shp"
+                        }
+                    ]
+                }
 ```
 Each top level target has 
 + a directory within PROCESSED_DIR which contains loaded maps. 
@@ -176,14 +182,14 @@ The OpenMapLocal example below illustrates some other features:
             ]
         }
     }
-} a
+}
 ```
 ## Running the Script:
 
 It is suggested that if you want to check that it all works with a minimall set of outputs that you swap config.json for example_config.json, and then run update.sh from the command line:
 ```bash
 ./update,sh
-
+```
 If all is set up correctly this should download and extract some json files to PROCESSED_DIR
 
 ## Adding scripts for further extracts
@@ -196,9 +202,10 @@ TARGET="${TARGET_DIR}Teignbridge.json"
 rm ${TARGET}
 ogr2ogr -f GeoJSON "${TARGET}" ${SOURCE} \
         -where "CODE IN ('E07000045')"
-
+```
 The script's environment is set according settings in config.json
 
+### Environment variables
 The following environment variables are provided
 PATH - is extended to include the likely installed locations of ogr2ogr
 ZIPBASE - value passed from update.sh
@@ -208,6 +215,20 @@ TARGET_DIR - directory to contain the output data
 CLIPSRC - set to the clip field if set on the product, target or dataset
 Provide the final command to run the script: ./update.sh.
 
+### building.sh - an example of clipping
+```
+#!/bin/bash
+TARGET="${TARGET_DIR}building.json"
+rm "${TARGET}"
+ogr2ogr -f GeoJSON "${TARGET}" "${SOURCE}" \
+        -clipsrc "${CLIPSRC}"
+```
+Here CLIPSRC contains the contents of clip set in config.json
+
 ## Known Issues
 This section will list any known bugs or limitations.
 
+## Further work
++ Most layers follow a standard pattern of using ogr2ogr to generate a single output file from a shp file with an optional where clause and clipping polygon. In these cases the .sh file could be replaced by a function in update_opendata.js which performed this functionality.
++ There would still be an occasional need for shell scripts to deal with examples like height grids (Panorama), raster data (), csv files (CodePoint). Also to perform bespoke follow on procedures such as setting additional attributes that might be needed by the application.
++ GUI front end to set up the config file based on date in the OS Data Hub API.
