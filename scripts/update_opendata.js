@@ -364,15 +364,20 @@ async function run(){
                                         SOURCE: unzipped + '/' + dataset.source,
                                         TARGET_DIR: target.directory + '/'
                                     };
-                                    if ( dataset.sources){
+                                    if ( dataset.sourcefiles){
                                         // this must be done by script
-                                        environment['SOURCES'] = dataset.sources;
+                                        environment['SOURCEFILES'] = dataset.sourcefiles;
                                     }   
                                     if ( clip ){
                                         environment['CLIPSRC'] = processed_dir + '/' + clip;
                                     }
                                     if ( dataset.where ){
-                                        environment['WHERE'] = dataset.where;
+                                        let where = dataset.where;
+                                        if ( dataset.where_codes ){
+                                            where = where.replace('@codes', "'" + dataset.where_codes.join("','") + "'");
+                                        }
+                                        console.log('Where: ' + where);
+                                        environment['WHERE'] = where;
                                     }
                                     if ( dataset.targets.length == 1 ){
                                         environment['TARGET'] = dataset.targets[0];

@@ -3,8 +3,9 @@ Automatically downloads the latest version of maps from the [OS Data hub](https:
 
 + Configurable to work with any [OSOpenData](https://docs.os.uk/os-downloads#types-of-download-data-products) product.
 + Keeps a versions file to track the product version for all downloaded source data and extracted files.
-+ If a target GeoJSON file is missing or its version is out of date, its source data is downloaded and the file is extracted.
-+ A shell script uses `ogr2ogr` to extract each map layer.
++ If a target file is missing or its version is out of date, its source data is downloaded and the file is extracted.
++ Normally `ogr2ogr` is used to extract each map layer.
++ Optionally a shell script can be used to perform a custom extract.
 + Working files (zips and expanded zips) and target GeoJSON files are stored in separate, configurable locations.
 + The project is configured via a flexible JSON file.
 + Clips map layers to a geography stored in a GeoJSON file.
@@ -21,7 +22,7 @@ This project is designed to run in a **Unix-like environment** such as **Linux**
 ## Prerequisites & Installation
 Familiarity with the command line is required.
 1. ### GDAL/OGR
-    `ogr2ogr` is used for all data processing. The `gdal-bin` package is required.
+    `ogr2ogr` is used for data processing. The `gdal-bin` package is required.
 
     **On Ubuntu **: The default GDAL packages are often outdated. We recommend using the `ubuntugis` PPA for a more recent version.
 
@@ -123,12 +124,16 @@ This object's key is the id of an OS product listed in the [products list](https
                         {
                             "targets":["Teignbridge.json"],
                             "source":"Data/GB/district_borough_unitary_region.shp",
-                            "where":""
+                            "where":"CODE IN ('E07000045')"
                         },
                         {
                             "targets":["TeignbridgeWards.json"],
-                            "script":"teignbidgewards.sh",
-                            "sourcr":"Data/GB/district_borough_unitary_electoral_division_region.shp"
+                            "source":"Data/GB/district_borough_unitary_electoral_division_region.shp",
+                            "where":"CODE IN (@codes)",
+                            "where_codes": ["E05011905","E05011912","E05011910","E05011895","E05011899","E05011909","E05011908",
+                                            "E05011906","E05011901","E05011902","E05011914","E05011913","E05011915","E05011915",
+                                            "E05011896","E05011898","E05011897","E05011900","E05011892","E05011893","E05011904",
+                                            "E05011903","E05011907","E05011911" ]
                         }
                     ]
                 }
@@ -139,21 +144,64 @@ Each top level target has
 ```json
                         {
                             "targets":["Teignbridge.json"],
-                            "script":"teignbridge.sh",
-                            "source":"Data/GB/district_borough_unitary_region.shp"
+                            "source":"Data/GB/district_borough_unitary_region.shp",
+                            "where":"CODE IN ('E07000045')"
                         },
 ```
-+ targets is a list of json files output to directory by the script
-+ script is the shell script within the target's directory within scripts
++ targets is a list of json files output to directory
 + source is the path within the zip file (unzipped) for the file to extract the json from.
++ sourcefiles list of source files to be loaded within a single zip only used where there are many sources per zip
++ where clause to filter features for inclusion in the extracted dataset, @codes in a where clause is substituted for a list 
++ where_codes array of codes to be formatted as a comma separated string and replace @codes in the where clause
++ script is an optional shell script within the target's directory within scripts that performs the extract.
 In this example `Teignbridge.json` is the district council boundary, and
-`district council boundary_region.shp` is a shape file containing all the boundaries for that teir of government within GB. The reason only one boundary is extracted is that the shell script teignbridge.sh is set up to restrict this to that districts unique code.
+`district council boundary_region.shp` is a shape file containing all the boundaries for that teir of government within GB. The reason only one boundary is extracted is that the where clause restrict the extract to that districts unique code.
+
+The next example shows the use of a list of codes and @codes to make it a bit easier to enter the list into json
+```json
+                        {
+                            "targets":["TeignbridgeWards.json"],
+                            "source":"Data/GB/district_borough_unitary_electoral_division_region.shp",
+                            "where":"CODE IN (@codes)",
+                            "where_codes": ["E05011905","E05011912","E05011910","E05011895","E05011899","E05011909","E05011908",
+                                            "E05011906","E05011901","E05011902","E05011914","E05011913","E05011915","E05011915",
+                                            "E05011896","E05011898","E05011897","E05011900","E05011892","E05011893","E05011904",
+                                            "E05011903","E05011907","E05011911" ]
+```
+This shows the use of @codes to put a list of area codes in the where clause for selection.
+
+Loading postcodes from Code Point GB is an example of loading from a different format to a different format, here to a custom
+storage for postcodes which provides a simple natural index based on file name. This uses a custom node script postcodes/js/loaders.js to read the source csv files and generate the index. This node script is initiated by a shell script postcode.sh
+```json
+        "CodePointOpen": {
+            "name": "Code Point Open",
+            "formats": [
+                "CSV"
+            ],
+            "script":"postcodes/",
+            "targets": [
+                {
+                    "directory":"postcodes",
+                    "datasets":[
+                        {
+                            "targets":["EX1.json"],
+                            "source":"Data/CSV/",
+                            "sourcefiles":["ex.csv","pl.csv","tq.csv"],
+                            "script":"postcode.sh"
+                        }
+                    ]
+                }
+            ]
+        },
+```
+Here the format is CSV and the unzipped source folder contains csv file for each GB postcode out code. We only want to load
+postcodes starting ex, pl, tq so we list the required source files in the sourcefiles field, and specify the path to these within
+the zip in source. We need to name at least one target (EX1.json) to ensure that the process detects something missing.
 
 The OpenMapLocal example below illustrates some other features:
 + The ability to specify an already loaded boundary as a clipping limit to geometries in a file. In this case we limit building and woodland to the teignbridge boundary that is loaded earlier in the config.
 + The ability to pick which OS tiles are extracted from a product, this is important where supply is in 100X100km tiles or 10X10km tiles. Here tiles use the OS sheet naming conventions. The list of available downloads is in the product's url given in the products list.
 + The ability to specify multiple targets for a product.
-
 ```bash
         "OpenMapLocal": {
             "name": "OS Open Map Local",
@@ -171,17 +219,15 @@ The OpenMapLocal example below illustrates some other features:
                     "datasets":[
                         {
                             "targets":["building.json"],
-                            "script":"building.sh",
                             "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Building.shp"
                         }
                     ]
                 },
                 {
                     "directory":"natural_environment",
-                    "datasets":[
+        hich            "datasets":[
                         {
                             "targets":["woodland.json"],
-                            "script":"woodland.sh",
                             "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Woodland.shp"
                         }
                     ]
@@ -193,15 +239,23 @@ The OpenMapLocal example below illustrates some other features:
 ```
 ## Running the Script:
 
-It is suggested that if you want to check that it all works with a minimall set of outputs that you swap config.json for example_config.json, and then run update.sh from the command line:
+It is suggested that if you want to check that it all works with a minimal set of outputs that you swap config.json for example_config.json, and then run update.sh from the command line:
 ```bash
-./update,sh
+./update.sh
 ```
 If all is set up correctly this should download and extract some json files to PROCESSED_DIR
 
 ## Adding scripts for further extracts
 
-Typical scripts to extract json files look like
+The script to load postcodes looks like
+```bash
+### postcode.sh
+#!/bash
+NODE=/home/jules/.nvm/versions/node/v24.0.1/bin/node
+${NODE} ./js/loader.js --sourcefiles="${SOURCES}" --source="${SOURCE}" --targetdir="${TARGET_DIR}"
+```
+
+Though superceded, Typical scripts to extract json files look like
 ### teignbridge.sh
 ```bash
 #!/bin/bash
@@ -217,25 +271,23 @@ The following environment variables are provided
 PATH - is extended to include the likely installed locations of ogr2ogr
 ZIPBASE - value passed from update.sh
 PROCESSED_DIR - value passed from update.sh
-SOURCE - path of the unzipped shape file
+SOURCE - path of the unzipped file or folder
+SOURCEFILES - list of files to be processed
 TARGET_DIR - directory to contain the output data
+TARGET - if there is only one output file for a source, this is its full path
+TARGETS - if there is more than one output file for a source
 CLIPSRC - set to the clip field if set on the product, target or dataset
-Provide the final command to run the script: ./update.sh.
+WHERE - expanded version of the where clause
 
-### building.sh - an example of clipping
-```
-#!/bin/bash
-TARGET="${TARGET_DIR}building.json"
-rm "${TARGET}"
-ogr2ogr -f GeoJSON "${TARGET}" "${SOURCE}" \
-        -clipsrc "${CLIPSRC}"
-```
-Here CLIPSRC contains the contents of clip set in config.json
+Provide the final command to run the script: ./update.sh.
 
 ## Known Issues
 This section will list any known bugs or limitations.
 
+## Changes in this version
++ For Most layers ogr2ogr is used to generate a single output file from a shp file with an optional where clause and clipping polygon. In these cases no .sh file is necessary.
++ Script and config have been implemented to load postcodes from CodePointGB to a custom csv format.
+
 ## Further work
-+ Most layers follow a standard pattern of using ogr2ogr to generate a single output file from a shp file with an optional where clause and clipping polygon. In these cases the .sh file could be replaced by a function in update_opendata.js which performed this functionality.
-+ There would still be an occasional need for shell scripts to deal with examples like height grids (Panorama), raster data (), csv files (CodePoint). Also to perform bespoke follow on procedures such as setting additional attributes that might be needed by the application.
++ Shell script for examples like height grids (Panorama), raster data (), csv files. Also to perform bespoke follow on procedures such as setting additional attributes that might be needed by the application.
 + GUI front end to set up the config file based on date in the OS Data Hub API.
