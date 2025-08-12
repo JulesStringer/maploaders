@@ -237,6 +237,7 @@ The OpenMapLocal example below illustrates some other features:
     }
 }
 ```
+
 ## Running the Script:
 
 It is suggested that if you want to check that it all works with a minimal set of outputs that you swap config.json for example_config.json, and then run update.sh from the command line:
@@ -271,13 +272,14 @@ The following environment variables are provided
 PATH - is extended to include the likely installed locations of ogr2ogr
 ZIPBASE - value passed from update.sh
 PROCESSED_DIR - value passed from update.sh
-SOURCE - path of the unzipped file or folder
+SOURCE - path of the unzipped file or folder supports substitution of {VERSION} for the product version without embedded -
 SOURCEFILES - list of files to be processed
 TARGET_DIR - directory to contain the output data
 TARGET - if there is only one output file for a source, this is its full path
 TARGETS - if there is more than one output file for a source
 CLIPSRC - set to the clip field if set on the product, target or dataset
 WHERE - expanded version of the where clause
+MAPDATA - same as processed_dir
 
 Provide the final command to run the script: ./update.sh.
 
@@ -287,6 +289,7 @@ This section will list any known bugs or limitations.
 ## Changes in this version
 + For Most layers ogr2ogr is used to generate a single output file from a shp file with an optional where clause and clipping polygon. In these cases no .sh file is necessary.
 + Script and config have been implemented to load postcodes from CodePointGB to a custom csv format.
++ Added processing of OpenUPRN product to a csv and uprn_lookup.json which also looks up polygon codes such as Porish and Ward - see scripts/uprn/uprn.sh for more
 
 ## Further work
 + Shell script for examples like height grids (Panorama), raster data (), csv files. Also to perform bespoke follow on procedures such as setting additional attributes that might be needed by the application.
