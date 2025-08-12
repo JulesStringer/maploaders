@@ -360,9 +360,11 @@ async function run(){
                                     if ( dataset.clip ){
                                         clip = dataset.clip
                                     }
+                                    let source = dataset.source.replace('{VERSION}', product.version.replace('-', ''));
                                     let environment = {
-                                        SOURCE: unzipped + '/' + dataset.source,
-                                        TARGET_DIR: target.directory + '/'
+                                        SOURCE: unzipped + '/' + source,
+                                        TARGET_DIR: target.directory + '/',
+                                        MAPDATA_DIR: processed_dir,
                                     };
                                     if ( dataset.sourcefiles){
                                         // this must be done by script
