@@ -8,4 +8,4 @@ echo "Source: ${SOURCE}"
 echo "Clipsrc: ${CLIPSRC}"
 echo "Target directory: ${TARGET_DIR}"
 ./uprn.sh
-#~/Projects/maploaders/scripts/uprn/uprn.sh
+#~/Projects/maploaders/OpenOSloader/scripts/uprn/uprn.sh

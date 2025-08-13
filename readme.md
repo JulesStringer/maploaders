@@ -78,7 +78,7 @@ The process is run from the shell script update.sh , which is as follows:
     PROCESSED_DIR=/var/www/mapdata/
     ZIPBASE=/home/jules/raw_maps/osopendata/
     NODE=/home/jules/.nvm/versions/node/v24.0.1/bin/node
-    SCRIPTS=/home/jules/Projects/maploaders/scripts/
+    SCRIPTS=/home/jules/Projects/maploaders/OpenOSloader/scripts/
     ${NODE} ${SCRIPTS}update_opendata.js processed=${PROCESSED_DI
 
 Determine the actual location of node using:
