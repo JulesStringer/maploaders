@@ -1,4 +1,4 @@
-# maploader - A loader for OSOpenData maps
+# OSOpenloader - A loader for OSOpenData maps
 Automatically downloads the latest version of maps from the [OS Data hub](https://osdatahub.os.uk/) and converts a configurable selection of these to GeoJSON format.
 
 + Configurable to work with any [OSOpenData](https://docs.os.uk/os-downloads#types-of-download-data-products) product.
