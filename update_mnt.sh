@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # --- Configuration for mount points ---
 MOUNT_POINT_JULES="/mnt/audio5"
 MOUNT_POINT_WWW="/mnt/www"

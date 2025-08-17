@@ -125,6 +125,28 @@
                     ]
                 }
             ]
+        },
+        "OpenRivers":{
+            "name": "OS Open Rivers",
+            "formats":[
+                "ESRI® Shapefile"
+            ],
+            "clip":"/boundaries/Teignbridge.json",
+            "targets": [
+                {
+                    "directory":"natural_environment",
+                    "datasets":[
+                        {
+                            "targets":["rivers.json"],
+                            "source":"data/WatercourseLink.shp"
+                        },
+                        {
+                            "targets":["rivernodes.json"],
+                            "source":"data/HydroNode.shp"
+                        }
+                    ]
+                }
+            ]
         }
     }
 }
