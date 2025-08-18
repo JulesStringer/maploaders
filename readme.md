@@ -202,7 +202,7 @@ The OpenMapLocal example below illustrates some other features:
 + The ability to specify an already loaded boundary as a clipping limit to geometries in a file. In this case we limit building and woodland to the teignbridge boundary that is loaded earlier in the config.
 + The ability to pick which OS tiles are extracted from a product, this is important where supply is in 100X100km tiles or 10X10km tiles. Here tiles use the OS sheet naming conventions. The list of available downloads is in the product's url given in the products list.
 + The ability to specify multiple targets for a product.
-```bash
+```json
         "OpenMapLocal": {
             "name": "OS Open Map Local",
             "script": "openmaplocal/",
@@ -225,7 +225,7 @@ The OpenMapLocal example below illustrates some other features:
                 },
                 {
                     "directory":"natural_environment",
-        hich            "datasets":[
+                        "datasets":[
                         {
                             "targets":["woodland.json"],
                             "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Woodland.shp"
@@ -268,20 +268,55 @@ ogr2ogr -f GeoJSON "${TARGET}" ${SOURCE} \
 The script's environment is set according settings in config.json
 
 ### Environment variables
-The following environment variables are provided
-PATH - is extended to include the likely installed locations of ogr2ogr
-ZIPBASE - value passed from update.sh
-PROCESSED_DIR - value passed from update.sh
-SOURCE - path of the unzipped file or folder supports substitution of {VERSION} for the product version without embedded -
-SOURCEFILES - list of files to be processed
-TARGET_DIR - directory to contain the output data
-TARGET - if there is only one output file for a source, this is its full path
-TARGETS - if there is more than one output file for a source
-CLIPSRC - set to the clip field if set on the product, target or dataset
-WHERE - expanded version of the where clause
-MAPDATA - same as processed_dir
+The following environment variables are provided:
+|Variable|Content|
+|--------|-------|
+|PATH|is extended to include the likely installed locations of ogr2ogr|
+|ZIPBASE|value passed from update.sh|
+|PROCESSED_DIR|value passed from update.sh|
+|SOURCE|path of the unzipped file or folder supports substitution of {VERSION} for the product version without embedded|
+|SOURCEFILES|list of files to be processed|
+|TARGET_DIR|directory to contain the output data|
+|TARGET|if there is only one output file for a source, this is its full path|
+|TARGETS|if there is more than one output file for a source|
+|CLIPSRC|set to the clip field if set on the product, target or dataset|
+|WHERE|expanded version of the where clause|
+|MAPDATA|same as processed_dir|
 
 Provide the final command to run the script: ./update.sh.
+
+### Versions files
+As well as keeping a record of the current version of each map, the versions files could be used by a remote utility to synchronise maps. There is a versions file in each target directory the following is an example from the boundaries folder:
+```json
+{
+    "Teignbridge.json": {
+        "version": "2025-05",
+        "loaded": "2025-08-11T13:55:05.839Z"
+    },
+    "Devon.json": {
+        "version": "2025-05",
+        "loaded": "2025-08-11T13:55:06.451Z"
+    },
+    "DevonConstituencies.json": {
+        "version": "2025-05",
+        "loaded": "2025-08-11T13:55:08.113Z"
+    },
+    "DevonWards.json": {
+        "version": "2025-05",
+        "loaded": "2025-08-11T13:55:09.737Z"
+    },
+    "TeignbridgeParishes.json": {
+        "version": "2025-05",
+        "loaded": "2025-08-12T17:29:18.793Z"
+    },
+    "TeignbridgeWards.json": {
+        "version": "2025-05",
+        "loaded": "2025-08-11T18:53:17.309Z"
+    }
+}
+```
+### Synchronising local copies of layers on websites.
+This can be achieved using [syncmaps.php](https://github.com/JulesStringer/syncmaps) 
 
 ## Known Issues
 This section will list any known bugs or limitations.
@@ -294,3 +329,4 @@ This section will list any known bugs or limitations.
 ## Further work
 + Shell script for examples like height grids (Panorama), raster data (), csv files. Also to perform bespoke follow on procedures such as setting additional attributes that might be needed by the application.
 + GUI front end to set up the config file based on date in the OS Data Hub API.
++ Provide a version synchronising PHP script to synchronise maps between servers.
