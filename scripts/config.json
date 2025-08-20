@@ -40,7 +40,7 @@
                                             "E04003217","E04003218","E04003219","E04003220","E04003221","E04003222","E04003223",
                                             "E04003232","E04003225","E04003226","E04003227","E04003228","E04003229","E04003230",
                                             "E04003231","E04003233","E04003234","E04003236","E04003237","E04003238","E04003239",
-                                            "E04012122"]
+                                            "E04012122","E04013236"]
                         },
                         {
                             "targets":["TeignbridgeWards.json"],
@@ -143,6 +143,32 @@
                         {
                             "targets":["rivernodes.json"],
                             "source":"data/HydroNode.shp"
+                        }
+                    ]
+                }
+            ]
+        },
+        "OpenRoads":{
+            "name": "OS Open Roads",
+            "formats":[
+                "ESRI® Shapefile"
+            ],
+            "clip":"/boundaries/Teignbridge.json",
+            "targets": [
+                {
+                    "directory":"roads",
+                    "datasets":[
+                        {
+                            "targets":["roads.json"],
+                            "source":"data/SX_RoadLink.shp"
+                        },
+                        {
+                            "targets":["roadnodes.json"],
+                            "source":"data/SX_RoadNode.shp"
+                        },
+                        {
+                            "targets":["motorway_junction.json"],
+                            "source":"data/SX_MotorwayJunction.shp"
                         }
                     ]
                 }

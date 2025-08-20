@@ -1,7 +1,6 @@
 const https = require('https');
 const fs = require('fs');
 const { exec } = require('child_process');
-//const yauzl = require('yauzl');
 const path = require('path');
 const unzipper = require('unzipper');
 
@@ -150,76 +149,6 @@ async function executeogr(environment) {
         });
     });
 }
-/*
-async function unzipFile(zippedFilePath, destinationPath) {
-    await fs.promises.rm(destinationPath, { recursive: true, force: true });
-    // Ensure the destination directory exists
-    await fs.promises.mkdir(destinationPath, { recursive: true });
-
-    return new Promise((resolve, reject) => {
-        yauzl.open(zippedFilePath, { lazyEntries: true, validateEntryPaths: false  }, (err, zipfile) => {
-            if (err) {
-                return reject(err);
-            }
-console.log('yauzl opened ' + zippedFilePath);
-            zipfile.readEntry();
-console.log('Read entry');
-            zipfile.on('entry', (entry) => {
-console.log('Entry: ' + JSON.stringify(entry));
-                const relativeEntryPath = entry.fileName.startsWith('/') ? entry.fileName.substring(1) : entry.fileName;
-                const entryPath = path.join(destinationPath, relativeEntryPath);
-console.log('Entrypath: ' + entryPath);
-                // Handle directories
-                if (/\/$/.test(entry.fileName)) {
-                     console.log('Opening zip directory: ' + entryPath);
-                    fs.promises.mkdir(entryPath, { recursive: true })
-                        .then(() => zipfile.readEntry())
-                        .catch((err) => {
-                            console.log('reject 173');
-                            reject(err);
-                        });
-                } else {
-                    // Handle files
-console.log('Reading file ' + entry + ' to ' + entryPath);
-                    zipfile.openReadStream(entry, (err, readStream) => {
-                        if (err) {
-                            console.log('reject 181');
-                            return reject(err);
-                        }
-                        
-                        readStream.on('error', (err) => {
-                            console.log('reject 186')
-                            reject(err) 
-                        });
-
-                        const writeStream = fs.createWriteStream(entryPath);
-                        writeStream.on('error', (err) => {
-                            console.log('reject 192');
-                            reject(err)
-                        });
-                        
-                        writeStream.on('finish', () => {
-                            zipfile.readEntry();
-                        });
-
-                        readStream.pipe(writeStream);
-                    });
-                }
-            });
-
-            zipfile.on('end', () => {
-                console.log('At end of zip');
-                resolve(`Successfully unzipped to ${destinationPath}`);
-            });
-
-            zipfile.on('error', (err) => {
-                console.log('reject 211');
-                reject(err)
-            });
-        });
-    });
-}
-*/
 async function unzipFile(zippedFilePath, destinationPath) {
     console.log(`Unzipping to ${destinationPath}`);
 

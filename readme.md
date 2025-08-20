@@ -325,8 +325,9 @@ This section will list any known bugs or limitations.
 + For Most layers ogr2ogr is used to generate a single output file from a shp file with an optional where clause and clipping polygon. In these cases no .sh file is necessary.
 + Script and config have been implemented to load postcodes from CodePointGB to a custom csv format.
 + Added processing of OpenUPRN product to a csv and uprn_lookup.json which also looks up polygon codes such as Porish and Ward - see scripts/uprn/uprn.sh for more
++ Changed to using unzipper library instead of yauzl as this is more tolerant of leading / on directory names.
++ E04013236 parish code added for Newton Abbot to relect ONS 2023 change
 
 ## Further work
 + Shell script for examples like height grids (Panorama), raster data (), csv files. Also to perform bespoke follow on procedures such as setting additional attributes that might be needed by the application.
 + GUI front end to set up the config file based on date in the OS Data Hub API.
-+ Provide a version synchronising PHP script to synchronise maps between servers.
