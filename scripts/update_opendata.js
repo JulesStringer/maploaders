@@ -1,178 +1,9 @@
-const https = require('https');
 const fs = require('fs');
-const { exec } = require('child_process');
-const path = require('path');
-const unzipper = require('unzipper');
-
+const utils = require('./utils.js');
 
 let zips_dir = __dirname + '/../osopendata/';
 let processed_dir = __dirname + '/../mapdata/';
 
-async function getjson(url){
-    return new Promise((resolve, reject) => {
-        let req = https.get(url,function(res){
-            let err = null;
-            if ( res.statusCode != 200 ){
-                err = new Error('Bad status ' + res.statusCode);
-                console.log(JSON.stringify(res));
-            } else {
-                let data = '';
-                res.on('data', function(chunk){
-                    data += chunk;
-                });
-                res.on('end', function(){
-                    if ( err ){
-                        console.log(data);
-                        reject(err);
-                    } else {
-                        try{
-                            let json = JSON.parse(data);
-                            resolve(json);
-                        }catch(err){
-                            reject(err);
-                        }
-                    }
-                });
-            }
-        });
-        req.end();
-    });
-}
-async function getdata(url, filepath){
-    return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
-
-            // Check for a redirect
-            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
-                const redirectUrl = response.headers.location;
-                // Recursive call to follow the redirect
-                getdata(redirectUrl, filepath).then(resolve).catch(reject);
-                return;
-            }
-            if (response.statusCode !== 200) {
-                reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
-                return;
-            }
-
-            const fileStream = fs.createWriteStream(filepath);
-
-            response.pipe(fileStream);
-
-            fileStream.on('finish', () => {
-                fileStream.close();
-                resolve();
-            });
-
-            fileStream.on('error', (err) => {
-                // If there's an error with the file stream, clean up and reject
-                fs.unlink(filepath, () => {
-                    reject(err);
-                });
-            });
-        }).on('error', (err) => {
-            reject(err);
-        });
-    });
-}
-async function executeScript(scriptPath, environment) {
-    return new Promise((resolve, reject) => {
-        console.log(`Executing: sh ${scriptPath}`); // Log the full path for debugging
-        const scriptDirectory = path.dirname(scriptPath); // Get the directory of the script
-        const newPath = `/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${process.env.PATH}`;
- 
-        let env = {
-             ...process.env, 
-            PATH:newPath,
-            ZIPBASE: zips_dir, // Custom variable for the zips directory
-            PROCESSED_DIR: processed_dir // Custom variable for the processed data directory
-        }
-        for(let key in environment){
-            env[key] = environment[key]            
-        }
- 
-        const child = exec(`sh ${scriptPath}`, {
-            cwd: scriptDirectory, // Set the current working directory
-            env: env
-        });
-
-        child.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
-        });
-
-        child.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
-        });
-
-        child.on('close', (code) => {
-            if (code === 0) {
-                resolve(`Child process exited with code ${code}`);
-            } else {
-                reject(new Error(`Child process exited with code ${code}`));
-            }
-        });
-
-        child.on('error', (error) => {
-            reject(error);
-        });
-    });
-}
-async function executeogr(environment) {
-    return new Promise((resolve, reject) => {
-        let cmd = `ogr2ogr -f GeoJSON "${environment.TARGET}" "${environment.SOURCE}"`;
-        if ( environment.WHERE ){
-            cmd += ` -where "${environment.WHERE}"`;
-        }
-        if ( environment.CLIPSRC ){
-            cmd += ` -clipsrc "${environment.CLIPSRC}"`;
-        }
-        console.log('Executing: ' + cmd);
-        const child = exec(cmd, { env: process.env });
-
-        child.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
-        });
-
-        child.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
-        });
-
-        child.on('close', (code) => {
-            if (code === 0) {
-                resolve(`Child process exited with code ${code}`);
-            } else {
-                reject(new Error(`Child process exited with code ${code}`));
-            }
-        });
-
-        child.on('error', (error) => {
-            reject(error);
-        });
-    });
-}
-async function unzipFile(zippedFilePath, destinationPath) {
-    console.log(`Unzipping to ${destinationPath}`);
-
-    // Ensure the destination directory exists and is empty
-    await fs.promises.rm(destinationPath, { recursive: true, force: true });
-    await fs.promises.mkdir(destinationPath, { recursive: true });
-
-    return new Promise((resolve, reject) => {
-        fs.createReadStream(zippedFilePath)
-            .pipe(unzipper.Extract({ path: destinationPath }))
-            .on('entry', entry => {
-                // unzipper correctly handles the directory structure
-                console.log(`Extracting: ${entry.path}`);
-            })
-            .on('error', err => {
-                console.error('Extraction error:', err);
-                reject(err);
-            })
-            .on('close', () => {
-                console.log('Successfully unzipped all files.');
-                resolve(`Successfully unzipped to ${destinationPath}`);
-            });
-    });
-}
 async function gettargetstatus(current, product){
     // returns a structure with status of targets
     let unprocessed_targets = [];
@@ -261,8 +92,39 @@ async function getfilesize(filepath){
 function getfilename(path){
     return path.split('/').pop();
 }
+async function buildlayersfile(config){
+    const layersfile = processed_dir + 'layers.json';
+    console.log('Building ' + layersfile);
+    let layerdata = await fs.promises.readFile(layersfile).catch(err => {
+        if ( err.code === 'ENOENT'){
+            console.log('File did not exist');
+            let layerdata = '{}';
+            return layerdata;
+        }
+        console.log('Error code: ' + err.code);
+    });
+    console.log('layerdata '+layerdata);
+    let layers = JSON.parse(layerdata);
+    for(const productid in config.products){
+        let product = config.products[productid];
+        for(const target of product.targets){
+            let basepath = processed_dir + target.directory + '/';
+            for(const dataset of target.datasets){
+                if ( dataset.layerid){
+                    let layer = {
+                        path:basepath + dataset.targets[0],
+                        location:"local"
+                    };
+                    layers[dataset.layerid] = layer;
+                }
+            }
+        }
+    }
+    await fs.promises.writeFile(layersfile, JSON.stringify(layers));
+    console.log('Updated layers file ' + layersfile);
+}
 async function run(){
-    let products = await getjson('https://api.os.uk/downloads/v1/products');
+    let products = await utils.getjson('https://api.os.uk/downloads/v1/products');
     let config_data = await fs.promises.readFile(__dirname + "/config.json");
     let config = JSON.parse(config_data);
     let updated = false;
@@ -287,8 +149,8 @@ async function run(){
             if ( unprocessed.length > 0 ){
                 console.log('Updating ' + product.id);
                 // download product
-                let product_detail = await getjson(product.url);
-                let downloads = await getjson(product_detail.downloadsUrl);
+                let product_detail = await utils.getjson(product.url);
+                let downloads = await utils.getjson(product_detail.downloadsUrl);
                 for(let download of downloads){
                     let hasformat = false;
                     for(let format of current.formats){
@@ -316,14 +178,14 @@ async function run(){
                             //
                             let filepath = zips_dir + download.fileName;
                             console.log('Downloading ' + filepath);
-                            await getdata(download.url, filepath);
+                            await utils.getdata(download.url, filepath);
                             console.log('Downloaded ' + filepath);
                             // unzip to 
                             //let zipped = filepath;
                             //console.log('zipped ' + zipped);
                             let unzipped = filepath.replace('.zip','');
                             console.log('unzipping to ' + unzipped);
-                            await unzipFile( filepath, unzipped);
+                            await utils.unzipFile( filepath, unzipped);
                             console.log('Unzipped ' + filepath + ' to ' + unzipped);
                             // now run shell script
                             let clip = current.clip;
@@ -340,6 +202,8 @@ async function run(){
                                         SOURCE: unzipped + '/' + source,
                                         TARGET_DIR: target.directory + '/',
                                         MAPDATA_DIR: processed_dir,
+                                        ZIPBASE: zips_dir, // Custom variable for the zips directory
+                                        PROCESSED_DIR: processed_dir // Custom variable for the processed data directory
                                     };
                                     if ( dataset.sourcefiles){
                                         // this must be done by script
@@ -364,10 +228,10 @@ async function run(){
                                     if ( dataset.script ){
                                         let scriptpath = __dirname + '/' + current.script + dataset.script;
                                         console.log('Executing ' + scriptpath);
-                                        await executeScript(scriptpath, environment);
+                                        await utils.executeScript(scriptpath, environment);
                                         console.log('Executed ' + scriptpath);
                                     } else {
-                                        await executeogr(environment)
+                                        await utils.executeogr(environment)
                                     }
                                     // Report file sizes
                                     for(let j = 0; j < dataset.targets.length; j++){
@@ -395,6 +259,7 @@ async function run(){
             }
         }
     }
+    await buildlayersfile(config);
 }
 const args = process.argv.slice(process.execArgv.length + 2);
 for(let arg of args){

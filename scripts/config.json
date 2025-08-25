@@ -12,22 +12,26 @@
                         {
                             "targets":["Teignbridge.json"],
                             "source":"Data/GB/district_borough_unitary_region.shp",
-                            "where":"CODE IN ('E07000045')"
+                            "where":"CODE IN ('E07000045')",
+                            "layerid":"Teignbridge"
                         },
                         {
                             "targets":["Devon.json"],
                             "source":"Data/GB/county_region.shp",
-                            "where":"CODE IN ('E10000008')"
+                            "where":"CODE IN ('E10000008')",
+                            "layerid":"Devon"
                         },
                         {
                             "targets":["DevonConstituencies.json"],
                             "source":"Data/GB/westminster_const_region.shp",
-                            "where":"CODE IN('E14001381','E14001155')"
+                            "where":"CODE IN('E14001381','E14001155')",
+                            "layerid":"DevonConstituencies"
                         },
                         {
                             "targets":["DevonWards.json"],
                             "source":"Data/GB/county_electoral_division_region.shp",
-                            "where":"FILE_NAME='DEVON_COUNTY'"
+                            "where":"FILE_NAME='DEVON_COUNTY'",
+                            "layerid":"DevonWards"
                         },
                         {
                             "targets":["TeignbridgeParishes.json"],
@@ -40,7 +44,8 @@
                                             "E04003217","E04003218","E04003219","E04003220","E04003221","E04003222","E04003223",
                                             "E04003232","E04003225","E04003226","E04003227","E04003228","E04003229","E04003230",
                                             "E04003231","E04003233","E04003234","E04003236","E04003237","E04003238","E04003239",
-                                            "E04012122","E04013236"]
+                                            "E04012122","E04013236","E04013237"],
+                            "layerid":"TeignbridgeParishes"
                         },
                         {
                             "targets":["TeignbridgeWards.json"],
@@ -49,7 +54,8 @@
                             "where_codes": ["E05011905","E05011912","E05011910","E05011895","E05011899","E05011909","E05011908",
                                             "E05011906","E05011901","E05011902","E05011914","E05011913","E05011915","E05011915",
                                             "E05011896","E05011898","E05011897","E05011900","E05011892","E05011893","E05011904",
-                                            "E05011903","E05011907","E05011911" ]
+                                            "E05011903","E05011907","E05011911" ],
+                            "layerid":"TeignbridgeWards"
                         }
                     ]
                 }
@@ -90,7 +96,8 @@
                             "targets":["teignbridge_uprn.csv"],
                             "source":"osopenuprn_{VERSION}.csv",
                             "sourcefiles":["uprn.csv"],
-                            "script":"uprn.sh"
+                            "script":"uprn.sh",
+                            "layerid":"TeignbridgeUPRN"
                         }
                     ]
                 }
@@ -111,7 +118,8 @@
                     "datasets":[
                         {
                             "targets":["building.json"],
-                            "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Building.shp"
+                            "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Building.shp",
+                            "layerid":"TeignbridgeBuildings"
                         }
                     ]
                 },
@@ -120,7 +128,8 @@
                     "datasets":[
                         {
                             "targets":["woodland.json"],
-                            "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Woodland.shp"
+                            "source":"OS OpenMap Local (ESRI Shape File) SX/data/SX_Woodland.shp",
+                            "layerid":"TeignbridgeWoodland"
                         }
                     ]
                 }
@@ -138,11 +147,13 @@
                     "datasets":[
                         {
                             "targets":["rivers.json"],
-                            "source":"data/WatercourseLink.shp"
+                            "source":"data/WatercourseLink.shp",
+                            "layerid":"TeignbridgeRivers"
                         },
                         {
                             "targets":["rivernodes.json"],
-                            "source":"data/HydroNode.shp"
+                            "source":"data/HydroNode.shp",
+                            "layerid":"TeignbridgeRiverNodes"
                         }
                     ]
                 }
@@ -160,15 +171,18 @@
                     "datasets":[
                         {
                             "targets":["roads.json"],
-                            "source":"data/SX_RoadLink.shp"
+                            "source":"data/SX_RoadLink.shp",
+                            "layerid":"TeignbridgeRoads"
                         },
                         {
                             "targets":["roadnodes.json"],
-                            "source":"data/SX_RoadNode.shp"
+                            "source":"data/SX_RoadNode.shp",
+                            "layerid":"TeignbridgeRoadNodes"
                         },
                         {
                             "targets":["motorway_junction.json"],
-                            "source":"data/SX_MotorwayJunction.shp"
+                            "source":"data/SX_MotorwayJunction.shp",
+                            "layerid":"TeignbridgeMotorwayJunctions"
                         }
                     ]
                 }

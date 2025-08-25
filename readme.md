@@ -322,11 +322,17 @@ This can be achieved using [syncmaps.php](https://github.com/JulesStringer/syncm
 This section will list any known bugs or limitations.
 
 ## Changes in this version
+25/8/2025
+Functions getjson, getdata, executeScript, executeogr, unzipFile moved to utils.js from update_opendata.js and exported as now used by other scripts. This makes it clearer. Also optional headers passed to getjson and getdata so that User-agent and/or Authorization can be set. 
+20/8/2025
++ E04013236 parish code added for Newton Abbot to relect ONS 2023 change
+17/8/2025
++ Changed to using unzipper library instead of yauzl as this is more tolerant of leading / on directory names.
+12/8/2025
++ Added processing of OpenUPRN product to a csv and uprn_lookup.json which also looks up polygon codes such as Porish and Ward - see scripts/uprn/uprn.sh for more
+11/8/2025
 + For Most layers ogr2ogr is used to generate a single output file from a shp file with an optional where clause and clipping polygon. In these cases no .sh file is necessary.
 + Script and config have been implemented to load postcodes from CodePointGB to a custom csv format.
-+ Added processing of OpenUPRN product to a csv and uprn_lookup.json which also looks up polygon codes such as Porish and Ward - see scripts/uprn/uprn.sh for more
-+ Changed to using unzipper library instead of yauzl as this is more tolerant of leading / on directory names.
-+ E04013236 parish code added for Newton Abbot to relect ONS 2023 change
 
 ## Further work
 + Shell script for examples like height grids (Panorama), raster data (), csv files. Also to perform bespoke follow on procedures such as setting additional attributes that might be needed by the application.
