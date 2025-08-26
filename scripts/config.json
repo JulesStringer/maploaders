@@ -81,28 +81,6 @@
                 }
             ]
         },
-        "OpenUPRN":{
-            "name": "Open UPRN",
-            "formats": [
-                "CSV"
-            ],
-            "clip":"/boundaries/Teignbridge.json",
-            "script":"uprn/",
-            "targets": [
-                {
-                    "directory":"uprn",
-                    "datasets":[
-                        {
-                            "targets":["teignbridge_uprn.csv"],
-                            "source":"osopenuprn_{VERSION}.csv",
-                            "sourcefiles":["uprn.csv"],
-                            "script":"uprn.sh",
-                            "layerid":"TeignbridgeUPRN"
-                        }
-                    ]
-                }
-            ]
-        },
         "OpenMapLocal": {
             "name": "OS Open Map Local",
             "areas": [

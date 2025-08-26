@@ -322,6 +322,8 @@ This can be achieved using [syncmaps.php](https://github.com/JulesStringer/syncm
 This section will list any known bugs or limitations.
 
 ## Changes in this version
+26/8/2025
+Removed UPRN load as now using ONS derived UPRNs
 25/8/2025
 Functions getjson, getdata, executeScript, executeogr, unzipFile moved to utils.js from update_opendata.js and exported as now used by other scripts. This makes it clearer. Also optional headers passed to getjson and getdata so that User-agent and/or Authorization can be set. 
 20/8/2025
